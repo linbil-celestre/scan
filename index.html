@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scan QR — Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;0,600;1,300&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+
+<div class="scan-page">
+
+    <div class="scan-header">
+        <div class="scan-tag">Portfolio Access</div>
+        <h1>Scan QR Code</h1>
+        <p>Select a portfolio to view</p>
+    </div>
+
+    <div class="qr-grid">
+
+        <!-- QR #1 -->
+        <div class="qr-item">
+            <div class="qr-wrap">
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="scanline"></div>
+                <img src="./Image/First-Portfolio.png" alt="QR Code 1" class="qr-img" />
+            </div>
+            <div class="qr-label">
+                <strong>QR Code 1</strong>
+                <span class="qr-badge">Primary Access</span>
+                <p class="Description">A dark-themed portfolio hero section featuring a blue hexagonal pattern background, text introducing a Front End Developer, social media links, a "Resume CV" button, and a circular portrait in graduation attire.</p>
+            </div>
+        </div>
+
+        <!-- QR #2 -->
+        <div class="qr-item">
+            <div class="qr-wrap">
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="scanline"></div>
+                <img src="./Image/Second-Portfolio.png" alt="QR Code 2" class="qr-img" />
+            </div>
+            <div class="qr-label">
+                <strong>QR Code 2</strong>
+                <span class="qr-badge">Alternative Access</span>
+                <p class="Description">A light-themed, modern portfolio web page with soft gradients, displaying intro text, target role tags, action buttons ("Download Resume", "View Profile"), and a dark footer section.</p>
+            </div>
+        </div>
+
+        <!-- QR #3 -->
+        <div class="qr-item">
+            <div class="qr-wrap">
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="scanline"></div>
+                <img src="./Image/Thrid-Portfolio.png" alt="QR Code 3" class="qr-img" />
+            </div>
+            <div class="qr-label">
+                <strong>QR Code 3</strong>
+                <span class="qr-badge">Backup Access</span>
+                <p class="Description">A dashboard-style portfolio layout with a dark navigation sidebar on the left and a main content area containing featured projects, tech stack skill bars, and a "Quick Facts" card.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="scan-hint">
+        <i class="fa-solid fa-mobile-screen-button"></i>
+        Point your camera at any QR code
+    </div>
+
+    <p class="scan-footer">
+        <i class="fa-solid fa-shield-halved"></i>
+        This page is strictly for portfolio access.
+    </p>
+
+</div>
+
+</body>
+</html>
