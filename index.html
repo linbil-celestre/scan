@@ -8,7 +8,219 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;0,600;1,300&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="./index.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg:         #EFEEE9;
+            --dark:       #14181C;
+            --accent:     #A8C2A0;
+            --accent2:    #8eab85;
+            --text:       #20251f;
+            --muted:      #687067;
+        }
+        
+        html { background: var(--dark); }
+        body { 
+            min-height: 100vh;
+            font-family: "Inter", sans-serif; 
+            background: var(--dark); 
+            color: var(--text);
+        }
+
+        .scan-page {
+            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 36px; padding: 56px 24px;
+            background: var(--dark);
+            position: relative;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .scan-header { text-align: center; display: flex; flex-direction: column; gap: 10px; z-index: 2; }
+        .scan-tag {
+            display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+            color: var(--accent); font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+        }
+        .scan-tag::before {
+            content: ''; display: block; width: 8px; height: 8px;
+            border-radius: 50%; background: var(--accent);
+            box-shadow: 0 0 0 3px rgba(168,194,160,0.25);
+        }
+        .scan-header h1 {
+            font-family: "Fraunces", serif; font-size: 2.1rem; font-weight: 500;
+            color: #ECEAE4; letter-spacing: -0.02em; line-height: 1.15;
+        }
+        .scan-header p { color: #868D93; font-size: 0.88rem; line-height: 1.6; }
+
+        /* QR Grid */
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .qr-item {
+            display: flex; flex-direction: column; align-items: center; gap: 16px;
+        }
+
+        /* QR frame */
+        .qr-wrap {
+            position: relative; padding: 16px; border-radius: 18px;
+            background: rgba(255,255,255,0.97);
+            border: 2px solid rgba(168,194,160,0.55);
+            box-shadow: 0 14px 44px rgba(0,0,0,0.42);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .qr-wrap::before, .qr-wrap::after {
+            content: ''; position: absolute; width: 22px; height: 22px;
+            border-color: var(--accent); border-style: solid;
+        }
+        .qr-wrap::before { top: -3px; left: -3px; border-width: 4px 0 0 4px; border-radius: 5px 0 0 0; }
+        .qr-wrap::after  { bottom: -3px; right: -3px; border-width: 0 4px 4px 0; border-radius: 0 0 5px 0; }
+        .corner-tr, .corner-bl {
+            position: absolute; width: 22px; height: 22px;
+            border-color: var(--accent); border-style: solid;
+        }
+        .corner-tr { top: -3px; right: -3px; border-width: 4px 4px 0 0; border-radius: 0 5px 0 0; }
+        .corner-bl { bottom: -3px; left: -3px; border-width: 0 0 4px 4px; border-radius: 0 0 0 5px; }
+
+        /* Scan line */
+        .scanline {
+            position: absolute; left: 0; top: 0;
+            width: 100%; height: 3px; z-index: 3; border-radius: 2px;
+            background: linear-gradient(90deg, transparent 0%, rgba(168,194,160,0.4) 15%, rgba(138,171,133,1) 50%, rgba(168,194,160,0.4) 85%, transparent 100%);
+            box-shadow: 0 0 10px 4px rgba(138,171,133,0.7), 0 0 20px 8px rgba(168,194,160,0.3);
+            animation: scan-sweep 2.4s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes scan-sweep {
+            0%   { top: 0%;   opacity: 0; }
+            5%   { opacity: 1; }
+            95%  { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .qr-item:nth-child(1) .scanline { animation-delay: 0s; }
+        .qr-item:nth-child(2) .scanline { animation-delay: 0.6s; }
+        .qr-item:nth-child(3) .scanline { animation-delay: 1.2s; }
+
+        .qr-img { display: block; width: 180px; height: 180px; object-fit: contain; border-radius: 6px; }
+
+        /* Labels */
+        .qr-label {
+            text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px;
+        }
+        .qr-label strong {
+            color: #ECEAE4; font-family: "Fraunces", serif;
+            font-size: 1.1rem; font-weight: 500;
+        }
+        
+        .qr-badge {
+            display: inline-block;
+            background: rgba(168, 194, 160, 0.12);
+            color: var(--accent);
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(168, 194, 160, 0.3);
+            cursor: pointer;
+            transition: all 0.25s ease-in-out;
+            user-select: none;
+        }
+
+        .qr-badge:hover {
+            background: var(--accent);
+            color: var(--dark);
+        }
+
+        .Description {
+            color: #A0A5A8;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            margin-top: 4px;
+            max-width: 260px;
+        }
+
+        /* 1. NAKA-HIDE ANG WEBSITE ONLY BUTTON SA SIMULA */
+        .web-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            color: var(--accent);
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            background: rgba(168, 194, 160, 0.08);
+            border: 1px solid rgba(168, 194, 160, 0.25);
+            
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px);
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* 2. LALABAS KAPAG IN-HOVER ANG BADGE (PRIMARY ACCESS) O ANG LINK MISMO */
+        .qr-badge:hover ~ .web-link,
+        .web-link:hover {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .web-link:hover {
+            background: var(--accent);
+            color: var(--dark);
+            box-shadow: 0 4px 12px rgba(168, 194, 160, 0.3);
+        }
+
+        /* Hint & Footer */
+        .scan-hint {
+            display: inline-flex; align-items: center; gap: 9px;
+            padding: 10px 22px; border-radius: 999px;
+            border: 1px solid rgba(168,194,160,0.4); background: rgba(168,194,160,0.1);
+            color: var(--accent); font-size: 0.75rem; font-weight: 700;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            animation: pulse 2.2s ease-in-out infinite;
+            z-index: 2;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(168,194,160,0.35); }
+            50%      { box-shadow: 0 0 0 10px rgba(168,194,160,0); }
+        }
+
+        .scan-footer {
+            display: flex; align-items: center; gap: 8px;
+            color: #5f6760; font-size: 0.72rem; z-index: 2;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 820px) {
+            .scan-page { padding: 40px 20px; gap: 28px; }
+            .qr-grid { grid-template-columns: repeat(2, 1fr); gap: 22px; }
+            .qr-img { width: 150px; height: 150px; }
+        }
+
+        @media (max-width: 580px) {
+            .scan-page { padding: 32px 16px; gap: 24px; }
+            .qr-grid { grid-template-columns: 1fr; gap: 28px; }
+            .qr-img { width: 180px; height: 180px; }
+            .scan-header h1 { font-size: 1.75rem; }
+            .Description { max-width: 100%; font-size: 0.82rem; }
+        }
+    </style>
 </head>
 <body>
 
@@ -34,6 +246,9 @@
                 <strong>QR Code 1</strong>
                 <span class="qr-badge">Primary Access</span>
                 <p class="Description">A dark-themed portfolio hero section featuring a blue hexagonal pattern background, text introducing a Front End Developer, social media links, a "Resume CV" button, and a circular portrait in graduation attire.</p>
+                <a href="https://linbil-celestre.github.io/portfolio/" target="_blank" class="web-link">
+                    Website Only <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
             </div>
         </div>
 
@@ -49,6 +264,9 @@
                 <strong>QR Code 2</strong>
                 <span class="qr-badge">Alternative Access</span>
                 <p class="Description">A light-themed, modern portfolio web page with soft gradients, displaying intro text, target role tags, action buttons ("Download Resume", "View Profile"), and a dark footer section.</p>
+                <a href="https://my-portfolio-flame-theta-75.vercel.app/index.html" target="_blank" class="web-link">
+                    Website Only <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
             </div>
         </div>
 
@@ -64,6 +282,9 @@
                 <strong>QR Code 3</strong>
                 <span class="qr-badge">Backup Access</span>
                 <p class="Description">A dashboard-style portfolio layout with a dark navigation sidebar on the left and a main content area containing featured projects, tech stack skill bars, and a "Quick Facts" card.</p>
+                <a href="https://my-portfolio-professional-gamma.vercel.app/" target="_blank" class="web-link">
+                    Website Only <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
             </div>
         </div>
 
