@@ -8,6 +8,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;0,600;1,300&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    
+    <!-- QRCode.js Library to generate QR Codes dynamically -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -19,7 +23,7 @@
             --muted:      #687067;
         }
         
-        html { background: var(--dark); }
+        html { background: var(--dark); min-height: 100%; }
         body { 
             min-height: 100vh;
             font-family: "Inter", sans-serif; 
@@ -30,15 +34,57 @@
         .scan-page {
             min-height: 100vh;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 36px; padding: 56px 24px;
+            gap: 28px; 
+            padding: 40px 24px 56px 24px;
             background: var(--dark);
             position: relative;
             max-width: 1100px;
             margin: 0 auto;
         }
 
-        /* Header */
-        .scan-header { text-align: center; display: flex; flex-direction: column; gap: 10px; z-index: 2; }
+        /* Header Layout */
+        .scan-header { 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            gap: 10px; 
+            z-index: 2; 
+            width: 100%;
+        }
+
+        .header-top-row {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            max-width: 1100px;
+            margin-bottom: 2px;
+        }
+
+        .hire-me {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border: 1px solid var(--accent);
+            border-radius: 20px;
+            background: var(--accent);
+            color: var(--dark);
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        .hire-me:hover {
+            background: transparent;
+            color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(168, 194, 160, 0.2);
+        }
+
         .scan-tag {
             display: inline-flex; align-items: center; justify-content: center; gap: 7px;
             color: var(--accent); font-size: 0.72rem; font-weight: 700;
@@ -151,7 +197,6 @@
             max-width: 260px;
         }
 
-        /* 1. NAKA-HIDE ANG WEBSITE ONLY BUTTON SA SIMULA */
         .web-link {
             display: inline-flex;
             align-items: center;
@@ -172,7 +217,6 @@
             transition: all 0.3s ease-in-out;
         }
 
-        /* 2. LALABAS KAPAG IN-HOVER ANG BADGE (PRIMARY ACCESS) O ANG LINK MISMO */
         .qr-badge:hover ~ .web-link,
         .web-link:hover {
             opacity: 1;
@@ -206,19 +250,51 @@
             color: #5f6760; font-size: 0.72rem; z-index: 2;
         }
 
+        /* Modal Styles for Generated Hire Me QR */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100; opacity: 0; visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1; visibility: visible;
+        }
+
+        .modal-card {
+            background: #1c2126; border: 1px solid rgba(168, 194, 160, 0.3);
+            border-radius: 16px; padding: 28px; width: 90%; max-width: 360px;
+            text-align: center; color: #ECEAE4; position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; align-items: center; gap: 16px;
+        }
+
+        .close-btn {
+            position: absolute; top: 14px; right: 16px; background: none; border: none;
+            color: #868D93; font-size: 1.2rem; cursor: pointer; transition: color 0.2s;
+        }
+        .close-btn:hover { color: var(--accent); }
+
+        #qrcode-container {
+            padding: 12px; background: #ffffff; border-radius: 12px; display: inline-block;
+        }
+
         /* Responsive Breakpoints */
         @media (max-width: 820px) {
-            .scan-page { padding: 40px 20px; gap: 28px; }
+            .scan-page { padding: 32px 20px; gap: 24px; }
             .qr-grid { grid-template-columns: repeat(2, 1fr); gap: 22px; }
             .qr-img { width: 150px; height: 150px; }
         }
 
         @media (max-width: 580px) {
-            .scan-page { padding: 32px 16px; gap: 24px; }
-            .qr-grid { grid-template-columns: 1fr; gap: 28px; }
+            .scan-page { padding: 24px 16px; gap: 20px; }
+            .qr-grid { grid-template-columns: 1fr; gap: 24px; }
             .qr-img { width: 180px; height: 180px; }
             .scan-header h1 { font-size: 1.75rem; }
             .Description { max-width: 100%; font-size: 0.82rem; }
+            .header-top-row { justify-content: center; }
         }
     </style>
 </head>
@@ -227,6 +303,11 @@
 <div class="scan-page">
 
     <div class="scan-header">
+        <div class="header-top-row">
+            <button class="hire-me" onclick="openHireModal()">
+                <i class="fa-solid fa-briefcase"></i> Hire Me
+            </button>
+        </div>
         <div class="scan-tag">Portfolio Access</div>
         <h1>Scan QR Code</h1>
         <p>Select a portfolio to view</p>
@@ -301,6 +382,46 @@
     </p>
 
 </div>
+
+<!-- Modal Popup for Hire Me QR Code -->
+<div class="modal-overlay" id="hireModal">
+    <div class="modal-card">
+        <button class="close-btn" onclick="closeHireModal()"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="font-family: 'Fraunces', serif; color: var(--accent);">Get in Touch</h3>
+        <p style="font-size: 0.8rem; color: #868D93;">Scan to contact or hire me</p>
+        
+        <div id="qrcode-container"></div>
+
+        <p style="font-size: 0.75rem; color: #A0A5A8; margin-top: 4px;">Points to direct contact / mail link</p>
+    </div>
+</div>
+
+<script>
+    let qrcodeInstance = null;
+
+    function openHireModal() {
+        const modal = document.getElementById('hireModal');
+        const container = document.getElementById('qrcode-container');
+        
+        modal.classList.add('active');
+
+        // Generate the QR code only once when opened
+        if (!qrcodeInstance) {
+            qrcodeInstance = new QRCode(container, {
+                text: "mailto:linbilcelestre3@gmail.com", // Change to your preferred contact link/email
+                width: 180,
+                height: 180,
+                colorDark : "#14181C",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+    }
+
+    function closeHireModal() {
+        document.getElementById('hireModal').classList.remove('active');
+    }
+</script>
 
 </body>
 </html>
